@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แฟ้มคดีสุขภาพใจ - Mental Health Case Files</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Kanit & Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Detective Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti for Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Kanit', 'sans-serif'],
+                        prompt: ['Prompt', 'sans-serif'],
+                    },
+                    colors: {
+                        detective: {
+                            base: '#1a1d24',
+                            paper: '#fdfbf7',
+                            border: '#e6ded3',
+                            stamp: '#b91c1c',
+                            amber: '#d97706',
+                            teal: '#0d9488',
+                            navy: '#1e293b'
+                        }
+                    },
+                    boxShadow: {
+                        'folder': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                        'paper': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 2px 2px 0px #e2d9cc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .stamp-animation {
+            transform: rotate(-12deg) scale(2);
+            opacity: 0;
+            animation: stampIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes stampIn {
+            to {
+                transform: rotate(-10deg) scale(1);
+                opacity: 0.95;
+            }
+        }
+        .paper-texture {
+            background-color: #fdfbf7;
+            background-image: repeating-linear-gradient(rgba(0,0,0,0.015) 0px, transparent 1px, transparent 24px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 text-white sticky top-0 z-40 px-4 py-3 shadow-md">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-900 shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-magnifying-glass text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide flex items-center gap-2">
+                        แฟ้มคดีสุขภาพใจ <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">Mind Case Files</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">เกมไขคดีจำลองเพื่อความเข้าใจในภาวะซึมเศร้า</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="toggleModal('howToPlayModal')" class="text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl transition flex items-center gap-2 border border-slate-700">
+                    <i class="fa-regular fa-circle-question text-amber-400"></i>
+                    <span class="hidden sm:inline">วิธีเล่น & เกณฑ์สังเกต</span>
+                </button>
+                <div id="userBadge" class="hidden items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                    <span id="badgeAvatar" class="text-lg">🕵️‍♂️</span>
+                    <span id="badgeName" class="text-sm font-medium text-slate-200">นักสืบ</span>
+                    <span class="text-xs text-amber-400 font-bold ml-1" id="badgeScore">0 แต้ม</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container Content Area -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
+
+        <!-- ================= 1. LOGIN & SETUP SCREEN ================= -->
+        <section id="stepLogin" class="w-full max-w-xl mx-auto my-auto">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur relative overflow-hidden">
+                <div class="absolute -right-12 -top-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="text-center mb-6">
+                    <span class="text-4xl sm:text-5xl inline-block mb-2">🏫🔍</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">ลงทะเบียนหน่วยสืบสวนสุขภาพใจ</h2>
+                    <p class="text-slate-400 text-sm">เข้าสู่โรงเรียนสาธิตวิทยานุสรณ์เพื่อช่วยเหลือเพื่อนนักเรียนที่กำลังเผชิญปัญหา</p>
+                </div>
+
+                <form id="loginForm" onsubmit="handleStartGame(event)" class="space-y-5">
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-1.5">ชื่อรหัสนักสืบของคุณ</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user-secret absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="playerNameInput" required placeholder="เช่น นักสืบสายลม, เจนนี่ ม.5" 
+                                class="w-full bg-slate-800/90 text-white rounded-xl pl-11 pr-4 py-3 border border-slate-700 focus:border-amber-400 focus:outline-none transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-2">เลือกตราสัญลักษณ์นักสืบ</label>
+                        <div class="grid grid-cols-4 gap-3" id="avatarSelector">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="avatar" value="🕵️‍♂️" checked class="peer sr-only">
+                                <div class="text-center p-3 rounded-2xl bg-slate-800 border-2 border-transparent peer-checked:border-amber-400 peer-checked:bg-amber-500/10 hover:bg-slate-700 transition">
+                                    <span class="text-3xl">🕵️‍♂️</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="avatar" value="🕵️‍♀️" class="peer sr-only">
+                                <div class="text-center p-3 rounded-2xl bg-slate-800 border-2 border-transparent peer-checked:border-amber-400 peer-checked:bg-amber-500/10 hover:bg-slate-700 transition">
+                                    <span class="text-3xl">🕵️‍♀️</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="avatar" value="🧠" class="peer sr-only">
+                                <div class="text-center p-3 rounded-2xl bg-slate-800 border-2 border-transparent peer-checked:border-amber-400 peer-checked:bg-amber-500/10 hover:bg-slate-700 transition">
+                                    <span class="text-3xl">🧠</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="avatar" value="🌱" class="peer sr-only">
+                                <div class="text-center p-3 rounded-2xl bg-slate-800 border-2 border-transparent peer-checked:border-amber-400 peer-checked:bg-amber-500/10 hover:bg-slate-700 transition">
+                                    <span class="text-3xl">🌱</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-1.5">ระดับความเข้มข้นของการสืบสวน</label>
+                        <select id="gameDifficulty" class="w-full bg-slate-800 text-white rounded-xl px-4 py-3 border border-slate-700 focus:border-amber-400 focus:outline-none">
+                            <option value="normal">ระดับมาตรฐาน (สืบสวนคดีพร้อมคำชี้แนะ)</option>
+                            <option value="challenge">ระดับชาเลนจ์ (ลดเวลา & เบาะแสลวงซับซ้อนขึ้น)</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-2 flex flex-col gap-3">
+                        <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold py-3.5 px-6 rounded-xl transition shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 text-base">
+                            <i class="fa-solid fa-play"></i> เริ่มสุ่มจับคู่ผู้เล่น & ไขคดี
+                        </button>
+                        <button type="button" onclick="toggleModal('howToPlayModal')" class="text-slate-400 hover:text-white text-sm py-1 transition text-center underline underline-offset-4">
+                            อ่านกติกาและเกณฑ์สุขภาพจิตก่อนเริ่ม
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= 2. MATCHMAKING SCREEN ================= -->
+        <section id="stepMatchmaking" class="hidden w-full max-w-lg mx-auto my-auto text-center">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur space-y-6">
+                <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-full border-4 border-amber-500/20 border-t-amber-500 animate-spin"></div>
+                    <i class="fa-solid fa-radar text-amber-400 text-3xl animate-pulse"></i>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-2" id="matchmakingStatus">กำลังค้นหานักสืบคู่แข่งในเครือข่าย...</h3>
+                    <p class="text-slate-400 text-sm" id="matchmakingSub">ระบบกำลังจับคู่กับนักสืบที่มีคะแนนความเข้าใจใกล้เคียงกัน</p>
+                </div>
+
+                <div class="flex items-center justify-center gap-6 py-4">
+                    <!-- User -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-800 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-lg" id="matchPlayerAvatar">
+                            🕵️
+                        </div>
+                        <span class="text-white font-medium text-sm mt-2" id="matchPlayerName">คุณ</span>
+                        <span class="text-xs text-amber-400">ฝ่ายปฏิบัติการ</span>
+                    </div>
+
+                    <div class="text-2xl font-bold text-slate-600">VS</div>
+
+                    <!-- Rival -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-800 border-2 border-dashed border-slate-600 flex items-center justify-center text-3xl shadow-lg" id="matchRivalAvatar">
+                            <i class="fa-solid fa-question text-slate-500 text-2xl"></i>
+                        </div>
+                        <span class="text-slate-400 font-medium text-sm mt-2" id="matchRivalName">กำลังค้นหา...</span>
+                        <span class="text-xs text-slate-500" id="matchRivalTitle">รอดำเนินการ</span>
+                    </div>
+                </div>
+
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="matchProgressBar" class="h-full bg-amber-500 transition-all duration-300 w-1/12"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 3. GAMEPLAY MAIN INTERFACE ================= -->
+        <section id="stepGameplay" class="hidden w-full space-y-5">
+            <!-- Rival Status & Case Header Card -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="p-2.5 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 text-xl">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </span>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider" id="caseNumberTag">คดีหมายเลข #A-204</span>
+                            <span class="bg-red-500/20 text-red-300 border border-red-500/30 text-[10px] px-2 py-0.5 rounded-full">ด่วนที่สุด</span>
+                            <span id="timerTag" class="hidden bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-full font-mono">
+                                <i class="fa-regular fa-clock mr-1"></i><span id="countdownDisplay">03:00</span>
+                            </span>
+                        </div>
+                        <h2 class="text-white text-lg sm:text-xl font-bold" id="caseTitleDisplay">คดีเงามืดในห้องเรียน ม.5/2</h2>
+                    </div>
+                </div>
+
+                <!-- Match Progress Bar VS Rival -->
+                <div class="bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700/80 flex items-center gap-4 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span id="gameUserAvatarDisplay">🕵️</span>
+                        <div>
+                            <p class="text-slate-200 font-bold" id="gameUserNameDisplay">คุณ</p>
+                            <p class="text-amber-400 font-semibold" id="gameUserScoreDisplay">0 แต้ม</p>
+                        </div>
+                    </div>
+                    <div class="text-slate-500 font-bold">แข่งกับ</div>
+                    <div class="flex items-center gap-2">
+                        <span id="gameRivalAvatarDisplay">👩‍⚕️</span>
+                        <div>
+                            <p class="text-slate-300 font-medium" id="gameRivalNameDisplay">นักสืบมีนา (AI)</p>
+                            <p class="text-teal-400 font-semibold" id="gameRivalScoreDisplay">0 แต้ม</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Briefing Banner -->
+            <div class="paper-texture border border-amber-200/60 rounded-2xl p-4 sm:p-5 shadow-folder text-slate-800">
+                <div class="flex items-start gap-3">
+                    <i class="fa-solid fa-clipboard-list text-amber-700 text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-base text-amber-950 mb-1">บันทึกเบื้องต้นจากอาจารย์ที่ปรึกษา:</h4>
+                        <p class="text-sm leading-relaxed text-slate-700 font-prompt" id="caseIncidentSummary">
+                            มีนักเรียน 3 คนในกลุ่มกิจกรรมที่เริ่มมีสัญญาณของความทุกข์ใจและปัญหาพฤติกรรม แต่ละคนกำลังเผชิญหน้ากับความยากลำบากที่แตกต่างกัน มีนักเรียน <strong class="text-red-700 font-semibold">1 คนที่เริ่มเข้าข่ายภาวะซึมเศร้าเรื้อรัง</strong> ซึ่งต้องการการวินิจฉัยและการช่วยเหลืออย่างเร่งด่วนที่สุด!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detective Stage Navigation Tabs -->
+            <div class="flex border-b border-slate-800 gap-2 overflow-x-auto pb-1 text-sm">
+                <button id="tabBtn1" onclick="switchPhase(1)" class="px-4 py-2 rounded-t-xl font-medium transition flex items-center gap-2 bg-amber-500 text-slate-950 font-bold">
+                    <span>1. คัดแยกการ์ดเบาะแส</span>
+                    <span id="clueCounter" class="bg-slate-950/20 text-xs px-2 py-0.5 rounded-full">0/6</span>
+                </button>
+                <button id="tabBtn2" onclick="switchPhase(2)" class="px-4 py-2 rounded-t-xl font-medium transition flex items-center gap-2 text-slate-400 hover:text-white bg-slate-800/40">
+                    <span>2. สมุดสรุปสำนวนคดี</span>
+                    <i class="fa-solid fa-lock text-xs opacity-60" id="tab2Lock"></i>
+                </button>
+                <button id="tabBtn3" onclick="switchPhase(3)" class="px-4 py-2 rounded-t-xl font-medium transition flex items-center gap-2 text-slate-400 hover:text-white bg-slate-800/40">
+                    <span>3. เลือกการ์ดแนวทางช่วยเหลือ</span>
+                    <i class="fa-solid fa-lock text-xs opacity-60" id="tab3Lock"></i>
+                </button>
+            </div>
+
+            <!-- ================= SUB-PHASE 1: CARD SORTING (CLUES) ================= -->
+            <div id="phase1" class="space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+                    <p><i class="fa-solid fa-lightbulb text-amber-400 mr-1.5"></i> คำสั่ง: อ่านเบาะแสแต่ละใบ แล้วแยกว่าเป็น <span class="text-emerald-400 font-semibold">"เบาะแสสำคัญจริง (สัญญาณซึมเศร้า)"</span> หรือ <span class="text-rose-400 font-semibold">"เบาะแสลวง (ความเครียด/อารมณ์ปกติชั่วคราว)"</span></p>
+                    <span class="text-xs text-slate-400 font-mono" id="cardsRemaining">เหลืออีก 6 การ์ด</span>
+                </div>
+
+                <!-- Card Sorting Play Area -->
+                <div id="clueCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Clue cards injected via JS -->
+                </div>
+
+                <div class="text-center pt-2">
+                    <button id="btnProceedToNotebook" onclick="switchPhase(2)" disabled class="opacity-50 cursor-not-allowed bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition shadow-lg flex items-center gap-2 mx-auto">
+                        <span>สรุปสำนวนลงสมุดบันทึกคดี</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= SUB-PHASE 2: DETECTIVE NOTEBOOK (IDENTIFY) ================= -->
+            <div id="phase2" class="hidden space-y-5">
+                <div class="paper-texture border-2 border-[#dcd1be] rounded-3xl p-5 sm:p-7 shadow-2xl relative">
+                    <!-- Spiral holes decoration -->
+                    <div class="absolute -top-3.5 left-8 right-8 flex justify-between px-4 pointer-events-none">
+                        <div class="w-3.5 h-7 rounded-full bg-slate-950 border border-slate-700"></div>
+                        <div class="w-3.5 h-7 rounded-full bg-slate-950 border border-slate-700"></div>
+                        <div class="w-3.5 h-7 rounded-full bg-slate-950 border border-slate-700"></div>
+                        <div class="w-3.5 h-7 rounded-full bg-slate-950 border border-slate-700"></div>
+                        <div class="w-3.5 h-7 rounded-full bg-slate-950 border border-slate-700"></div>
+                    </div>
+
+                    <div class="border-b-2 border-slate-300 pb-3 mb-6 mt-2 flex justify-between items-end">
+                        <div>
+                            <span class="text-xs font-mono tracking-widest text-slate-500">CONFIDENTIAL REPORT</span>
+                            <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-book-skull text-amber-700"></i> สมุดบันทึกสำนวนสรุปความ
+                            </h3>
+                        </div>
+                        <span class="text-xs text-slate-500 font-mono">บันทึกโดย: <strong id="notebookAuthor">นักสืบ</strong></span>
+                    </div>
+
+                    <p class="text-sm text-slate-700 mb-5 font-prompt">
+                        จากการตรวจสอบพยานและเบาะแสที่คัดกรองแล้ว จงระบุว่า <strong>นักเรียนคนใดกำลังเผชิญกับ "ภาวะซึมเศร้า (Major Depression)"</strong> ที่แท้จริง:
+                    </p>
+
+                    <!-- Student Profiles Suspects -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="suspectsList">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Detective deduction justification -->
+                    <div class="bg-amber-50/80 p-4 rounded-xl border border-amber-200">
+                        <label class="block text-xs font-bold text-amber-900 uppercase mb-1">เหตุผลเชิงจิตวิทยาประกอบสำนวน (อ้างอิงเกณฑ์การวินิจฉัย):</label>
+                        <select id="deductionReason" class="w-full bg-white text-slate-800 rounded-lg p-2.5 text-sm border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 font-prompt">
+                            <option value="">-- กรุณาเลือกหลักเกณฑ์ที่สอดคล้องที่สุด --</option>
+                            <option value="duration">มีอาการอารมณ์ดิ่งต่อเนื่องเกิน 2 สัปดาห์ และสูญเสียความสนใจในสิ่งที่เคยชอบอย่างสิ้นเชิง</option>
+                            <option value="temporary">มีอารมณ์โกรธและหงุดหงิดเฉพาะช่วงที่ทะเลาะกับเพื่อนสนิท</option>
+                            <option value="exam">มีอาการนอนไม่หลับเฉพาะคืนก่อนสอบแข่งขันระดับชาติ</option>
+                        </select>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="submitNotebookDeduction()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl transition flex items-center gap-2 shadow-md">
+                            <span>ยืนยันสำนวน และไปขั้นตอนเลือกวิธีช่วยเหลือ</span>
+                            <i class="fa-solid fa-stamp text-amber-400"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= SUB-PHASE 3: INTERVENTION SELECTION ================= -->
+            <div id="phase3" class="hidden space-y-5">
+                <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-hand-holding-heart"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-white">เลือกแนวทางการช่วยเหลือที่เหมาะสมที่สุด</h3>
+                            <p class="text-slate-400 text-sm">การเลือกคำพูดและการลงมือช่วยที่ถูกต้อง เป็นเส้นแบ่งสำคัญระหว่างการเยียวยากับการซ้ำเติม</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6" id="interventionCardsContainer">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="text-center pt-2">
+                        <button id="btnFinalizeCase" onclick="finalizeCaseResolution()" disabled class="opacity-50 cursor-not-allowed bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold px-8 py-3.5 rounded-xl transition shadow-lg shadow-teal-500/20 text-base">
+                            <i class="fa-solid fa-shield-heart mr-2"></i> สรุปและปิดแฟ้มคดี
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 4. CASE CLOSED & DEBRIEF MODAL/VIEW ================= -->
+        <section id="stepResults" class="hidden w-full max-w-2xl mx-auto my-auto">
+            <div class="paper-texture border-4 border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden text-slate-800">
+                <!-- Case Closed Stamp Watermark -->
+                <div id="stampBadge" class="absolute top-6 right-6 border-4 border-red-700 text-red-700 font-extrabold text-xl sm:text-2xl px-4 py-1.5 rounded-lg tracking-widest stamp-animation uppercase select-none pointer-events-none">
+                    CASE CLOSED
+                </div>
+
+                <div class="text-left mb-6">
+                    <span class="text-xs font-mono font-bold text-slate-500 uppercase">รายงานผลการปฏิบัติการหน่วยสุขภาพใจ</span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1" id="resultHeaderTitle">ปิดแฟ้มคดีสำเร็จ!</h2>
+                    <p class="text-slate-600 text-sm mt-1" id="resultSubtitle">คุณสามารถระบุผู้เผชิญภาวะซึมเศร้าและมอบการช่วยเหลือที่ถูกต้อง</p>
+                </div>
+
+                <!-- Match Battle Scoreboard -->
+                <div class="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 mb-6 flex items-center justify-between shadow-inner">
+                    <div class="text-center flex-1">
+                        <span class="text-3xl" id="finalUserAvatar">🕵️</span>
+                        <p class="text-sm font-bold text-slate-200 mt-1" id="finalUserName">คุณ</p>
+                        <p class="text-2xl font-black text-amber-400" id="finalUserScore">100</p>
+                        <span class="text-[10px] text-slate-400">คะแนนการสืบสวน</span>
+                    </div>
+
+                    <div class="px-4 text-center">
+                        <span class="text-xs uppercase font-mono px-2 py-1 rounded bg-slate-800 text-amber-400 font-bold" id="battleResultBadge">คุณชนะ!</span>
+                    </div>
+
+                    <div class="text-center flex-1">
+                        <span class="text-3xl" id="finalRivalAvatar">👩‍⚕️</span>
+                        <p class="text-sm font-bold text-slate-200 mt-1" id="finalRivalName">นักสืบมีนา (AI)</p>
+                        <p class="text-2xl font-black text-teal-400" id="finalRivalScore">85</p>
+                        <span class="text-[10px] text-slate-400">คะแนนการสืบสวน</span>
+                    </div>
+                </div>
+
+                <!-- Psychology Educational Debrief Box -->
+                <div class="bg-white/90 border border-slate-200 rounded-2xl p-5 mb-6 space-y-3 font-prompt text-sm leading-relaxed">
+                    <h4 class="font-bold text-slate-900 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-book-medical text-teal-600"></i> สาระน่ารู้จากคดีนี้ (Psychology Debrief)
+                    </h4>
+                    <div id="educationalFeedback" class="text-slate-700 space-y-2">
+                        <!-- Educational explanation from case data -->
+                    </div>
+                    <div class="mt-3 p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-900 text-xs flex items-center gap-3">
+                        <i class="fa-solid fa-phone-volume text-xl text-teal-600"></i>
+                        <div>
+                            <strong>สายด่วนสุขภาพจิต 1323 (โทรฟรี 24 ชม.)</strong> หรือติดต่อห้องพยาบาล/ครูแนะแนวประจำโรงเรียนเมื่อต้องการความช่วยเหลือทันที
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button onclick="restartWithNewCase()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3.5 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> รับแฟ้มคดีใหม่ (สุ่มคดีใหม่)
+                    </button>
+                    <button onclick="shareCaseResult()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-3.5 px-5 rounded-xl transition flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-copy"></i> คัดลอกผลสรุป
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 text-slate-500 text-xs text-center py-4 px-4">
+        แฟ้มคดีสุขภาพใจ • สื่อการเรียนรู้เชิงปฏิสัมพันธ์เพื่อสร้างความตระหนักรู้เกี่ยวกับภาวะซึมเศร้าในสถานศึกษา
+    </footer>
+
+    <!-- ================= HOW TO PLAY & CRITERIA MODAL ================= -->
+    <div id="howToPlayModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-amber-400"></i> คู่มือนักสืบ & เกณฑ์สังเกตภาวะซึมเศร้า
+                </h3>
+                <button onclick="toggleModal('howToPlayModal')" class="text-slate-400 hover:text-white p-1 text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 text-sm text-slate-300 font-prompt">
+                <!-- Section 1 -->
+                <div>
+                    <h4 class="text-amber-400 font-bold mb-2 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs flex items-center justify-center">1</span>
+                        กติกาการเล่น 3 ขั้นตอน
+                    </h4>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-300 ml-1">
+                        <li><strong>แยกการ์ดเบาะแส:</strong> วิเคราะห์การ์ดแต่ละใบว่าคือ <span class="text-emerald-400 font-semibold">อาการบ่งชี้สำคัญ</span> หรือ <span class="text-rose-400 font-semibold">เบาะแสลวง</span></li>
+                        <li><strong>สรุปสำนวนลงสมุด:</strong> ระบุนักเรียนที่มีภาวะซึมเศร้าพร้อมระบุหลักการทางจิตวิทยาที่ถูกต้อง</li>
+                        <li><strong>เลือกแนวทางช่วยเหลือ:</strong> คัดเลือกวิธีและคำพูดที่ปลอดภัย เหมาะสม และช่วยเหลือได้จริง</li>
+                    </ol>
+                </div>
+
+                <!-- Section 2 -->
+                <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700">
+                    <h4 class="text-white font-bold mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-teal-400"></i> เปรียบเทียบ: ความเครียดชั่วคราว VS ภาวะซึมเศร้า
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+                            <span class="font-bold text-amber-300 block mb-1">ความเศร้า/เครียดปกติ</span>
+                            <ul class="space-y-1 text-slate-400 list-disc list-inside">
+                                <li>มีสาเหตุชัดเจน (เช่น เพิ่งสอบตก, อกหัก)</li>
+                                <li>ยังสามารถมีความสุขกับสิ่งที่ชอบได้บางเวลา</li>
+                                <li>อาการมักทุเลาลงในไม่กี่วันเมื่อสถานการณ์เปลี่ยน</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-teal-500/30">
+                            <span class="font-bold text-teal-300 block mb-1">ภาวะซึมเศร้า (Major Depression)</span>
+                            <ul class="space-y-1 text-slate-400 list-disc list-inside">
+                                <li>อารมณ์ดิ่งต่อเนื่องเกิน <strong>2 สัปดาห์</strong></li>
+                                <li>หมดความสุข/ความสนใจในทุกสิ่งที่เคยรัก (Anhedonia)</li>
+                                <li>นอนไม่หลับหรือนอนมากเกินไป, อ่อนเพลียเรื้อรัง</li>
+                                <li>รู้สึกไร้ค่า สิ้นหวัง โทษตัวเองอย่างรุนแรง</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3 -->
+                <div>
+                    <h4 class="text-amber-400 font-bold mb-2 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs flex items-center justify-center">2</span>
+                        คำพูดที่ "ควรใช้" และ "ไม่ควรใช้"
+                    </h4>
+                    <div class="space-y-2 text-xs">
+                        <p class="text-rose-300 bg-rose-950/40 p-2.5 rounded-lg border border-rose-900">
+                            <strong>❌ ไม่ควรใช้:</strong> "อย่าคิดมาก เดี๋ยวก็หาย", "สู้ๆ มองโลกแง่บวกสิ", "คนอื่นลำบากกว่านี้ยังทนได้" (ทำให้รู้สึกผิดและปิดกั้น)
+                        </p>
+                        <p class="text-emerald-300 bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-900">
+                            <strong>✔️ ควรใช้:</strong> "เราพร้อมรับฟังเธอเสมอ", "เธอไม่ได้เผชิญเรื่องนี้คนเดียวนะ", "ไปคุยกับคุณหมอหรือครูแนะแนวด้วยกันไหม เราจะเดินไปด้วย"
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-900 border-t border-slate-800 text-right">
+                <button onclick="toggleModal('howToPlayModal')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2 rounded-xl text-sm transition">
+                    เข้าใจแล้ว ปิดหน้าต่างนี้
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-slate-800 text-white border border-slate-700 px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMsg" class="text-sm font-medium">ข้อความแจ้งเตือน</span>
+    </div>
+
+    <!-- ================= JAVASCRIPT GAME LOGIC ================= -->
+    <script>
+        // --- 1. GAME DATA REPOSITORY (Multiple Random Cases) ---
+        const CASE_DATABASE = [
+            {
+                id: "CASE-101",
+                title: "คดีเงามืดในชมรมดนตรีสากล",
+                number: "คดีหมายเลข #M-101",
+                summary: "สมาชิก 3 คนของชมรมดนตรีสากลเริ่มมีพฤติกรรมเปลี่ยนแปลงไปก่อนงานแสดงประจำปี อาจารย์ที่ปรึกษาสังเกตเห็นความผิดปกติและต้องการให้นักสืบเข้ามาประเมินว่าใครกำลังเผชิญภาวะซึมเศร้า",
+                suspects: [
+                    {
+                        id: "S1",
+                        name: "ต้นกล้า (ม.5)",
+                        role: "มือกีตาร์ประจำวง",
+                        avatar: "🎸",
+                        story: "มักมาซ้อมสาย 1 สัปดาห์ที่ผ่านมาเพราะติดเกมจนดึก และเพิ่งถูกแฟนบอกเลิก 2 วันก่อน ทำให้มีร้องไห้เวลาเล่นเพลงเศร้า แต่ยังชอบชวนเพื่อนไปกินชาบูหลังซ้อม",
+                        isDepressed: false
+                    },
+                    {
+                        id: "S2",
+                        name: "ฟ้าใส (ม.5)",
+                        role: "มือคีย์บอร์ด / หัวหน้าฝ่ายวิชาการ",
+                        avatar: "🎹",
+                        story: "เมื่อ 3 สัปดาห์ที่ผ่านมา เธอเริ่มไม่แตะเปียโนที่เคยรักมาก ไม่สบตาใคร น้ำหนักลดฮวบ โทษตัวเองซ้ำๆ ว่าเป็นภาระของวง มักพูดว่า 'ถ้าไม่มีเราทุกคนคงมีความสุขกว่านี้'",
+                        isDepressed: true
+                    },
+                    {
+                        id: "S3",
+                        name: "เจมส์ (ม.6)",
+                        role: "มือกลอง",
+                        avatar: "🥁",
+                        story: "เครียดจัดเพราะต้องเตรียมสอบแพทย์ ทะเลาะกับเพื่อนบ่อยขึ้นเพราะเพื่อนเล่นผิดคีย์ อารมณ์ฉุนเฉียวเฉพาะตอนซ้อมดนตรี แต่ยังอ่านหนังสือได้ปกติ",
+                        isDepressed: false
+                    }
+                ],
+                clues: [
+                    {
+                        id: "c1",
+                        title: "อาการไม่แตะคีย์บอร์ดเกิน 3 สัปดาห์",
+                        detail: "ฟ้าใสหยุดเล่นเปียโนและคีย์บอร์ดซึ่งเคยเป็นสิ่งที่เธอรักที่สุด และไม่มีความสุขกับกิจกรรมใดๆ เลย",
+                        isRealEvidence: true,
+                        explanation: "เข้าข่ายภาวะ Anhedonia (สูญเสียความเพลิดเพลินในสิ่งที่ชอบ) ต่อเนื่องเกิน 2 สัปดาห์ ซึ่งเป็นอาการหลักของโรคซึมเศร้า"
+                    },
+                    {
+                        id: "c2",
+                        title: "การร้องไห้หลังอกหักได้ 2 วัน",
+                        detail: "ต้นกล้าร้องไห้เศร้าโศกหลังจากเพิ่งเลิกกับแฟนเมื่อ 2 วันก่อน แต่ยังกินข้าวและพูดคุยได้",
+                        isRealEvidence: false,
+                        explanation: "นี่คือปฏิกิริยาทางอารมณ์ปกติ (Normal Grief/Sadness) ต่อเหตุการณ์กระทบกระเทือนใจชั่วคราว ยังไม่เข้าข่ายโรคซึมเศร้า"
+                    },
+                    {
+                        id: "c3",
+                        title: "คำพูด 'ถ้าไม่มีเราทุกคนคงดีกว่านี้'",
+                        detail: "ฟ้าใสพูดซ้ำๆ ด้วยสายตาว่างเปล่า และรู้สึกว่าตนเองไร้ค่า เป็นภาระของทุกคน",
+                        isRealEvidence: true,
+                        explanation: "ความรู้สึกไร้ค่า (Worthlessness) และการมองตัวเองเป็นภาระ เป็นสัญญาณเตือนสำคัญทางจิตเวช"
+                    },
+                    {
+                        id: "c4",
+                        title: "อารมณ์ฉุนเฉียวเฉพาะตอนซ้อมกลอง",
+                        detail: "เจมส์หงุดหงิดเวลาซ้อมดนตรีเพราะเหนื่อยจากการเตรียมอ่านหนังสือสอบเข้ามหาวิทยาลัย",
+                        isRealEvidence: false,
+                        explanation: "เป็นความตึงเครียดตามสถานการณ์ (Situational Stress) เฉพาะเรื่องสอบ ยังไม่ใช่ภาวะซึมเศร้าเรื้อรัง"
+                    },
+                    {
+                        id: "c5",
+                        title: "น้ำหนักตัวลดลงอย่างเห็นได้ชัดและนอนไม่หลับ",
+                        detail: "เพื่อนสนิทสังเกตว่าฟ้าใสไม่ได้ทานข้าวกลางวันมาเกือบเดือน และบอกว่านอนหลับไม่สนิทตื่นกลางดึกทุกคืน",
+                        isRealEvidence: true,
+                        explanation: "การเปลี่ยนแปลงทางสรีรวิทยา เช่น น้ำหนักฮวบและโรคนอนไม่หลับ (Insomnia) เป็นเกณฑ์สำคัญของภาวะซึมเศร้า"
+                    },
+                    {
+                        id: "c6",
+                        title: "การเล่นเกมนอนดึกจนมาสาย",
+                        detail: "ต้นกล้าเพิ่งติดเกมออนไลน์ใหม่ช่วงเปิดซีซั่น ทำให้ตื่นสายในบางวัน",
+                        isRealEvidence: false,
+                        explanation: "พฤติกรรมปรับเปลี่ยนตามความชอบและวินัยส่วนบุคคล ไม่ได้สะท้อนพยาธิสภาพทางอารมณ์ดิ่งเรื้อรัง"
+                    }
+                ],
+                interventions: [
+                    {
+                        id: "int_wrong_1",
+                        text: "บอกว่า 'อย่าคิดมากเลย มองโลกในแง่ดีสิ ชีวิตมีเรื่องดีๆ ตั้งเยอะ สู้ๆ'",
+                        isBest: false,
+                        feedback: "คำพูด 'อย่าคิดมาก/มองโลกแง่บวก' มักทำให้ผู้ป่วยรู้สึกว่าความเจ็บปวดของตนถูกลดทอนคุณค่าและรู้สึกผิดที่ตนเองทำตามไม่ได้"
+                    },
+                    {
+                        id: "int_wrong_2",
+                        text: "ชวนไปออกกำลังกายหนักๆ และบอกว่าคนอื่นเขาลำบากกว่านี้ยังอดทนได้",
+                        isBest: false,
+                        feedback: "การเปรียบเทียบความทุกข์กับคนอื่นยิ่งเพิ่มความรู้สึกด้อยค่าและกดดันจนผู้ป่วยปิดกั้นการสื่อสาร"
+                    },
+                    {
+                        id: "int_best",
+                        text: "รับฟังอย่างตั้งใจไม่ตัดสิน พร้อมจับมือพาไปปรึกษาครูแนะแนวหรือจิตแพทย์ร่วมกับผู้ปกครอง",
+                        isBest: true,
+                        feedback: "ถูกต้องยอดเยี่ยม! การรับฟังแบบ Active Listening + การประสานส่งต่อผู้เชี่ยวชาญ (ครูแนะแนว/จิตแพทย์) เป็นแนวทางที่ดีที่สุด"
+                    },
+                    {
+                        id: "int_wrong_3",
+                        text: "แอบบอกเพื่อนทั้งห้องให้คอยจับตามองเป็นพิเศษและระวังไม่ให้เธออยู่คนเดียว",
+                        isBest: false,
+                        feedback: "การกระจายข่าวทำให้ผู้ป่วยรู้สึกถูกตีตรา (Stigma) สูญเสียความเป็นส่วนตัว และอาจรู้สึกอับอายยิ่งขึ้น"
+                    }
+                ],
+                debriefEducation: `
+                    <p><strong>สรุปผลทางคลินิก:</strong> ในคดีนี้ <strong>ฟ้าใส</strong> มีภาวะซึมเศร้าอย่างชัดเจน โดยมีทั้งอารมณ์ดิ่งเกิน 2 สัปดาห์, Anhedonia (หมดสุขกับดนตรี), น้ำหนักลด, และความรู้สึกผิด/ไร้ค่ารุนแรง</p>
+                    <p>ขณะที่ <strong>ต้นกล้า</strong> เป็นเพียงความโศกเศร้าจากการเลิกราที่มีระยะเวลาสั้น และ <strong>เจมส์</strong> เผชิญกับความเครียดจากการแข่งขันสอบเข้า</p>
+                `
+            },
+            {
+                id: "CASE-102",
+                title: "คดีบันทึกลับหลังห้องปฏิบัติการเคมี",
+                number: "คดีหมายเลข #C-102",
+                summary: "ระหว่างเตรียมโครงงานวิทยาศาสตร์ ครูพบสมุดบันทึกที่มีข้อความตัดพ้อรุนแรง พร้อมกับบรรยากาศในกลุ่มนักเรียน ม.6 ที่เงียบผิดปกติ นักสืบต้องจำแนกว่าใครกำลังตกอยู่ในภาวะซึมเศร้า",
+                suspects: [
+                    {
+                        id: "S1",
+                        name: "พิมพ์ (ม.6)",
+                        role: "หัวหน้ากลุ่มทดลอง",
+                        avatar: "🧪",
+                        story: "ผลแล็บพังเมื่อวาน ทำให้เธอร้องไห้เสียงดังและบ่นว่าเหนื่อยมาก แต่เช้าวันนี้กลับมาหัวเราะและบอกเพื่อนว่าจะเริ่มทำใหม่",
+                        isDepressed: false
+                    },
+                    {
+                        id: "S2",
+                        name: "นนท์ (ม.6)",
+                        role: "ฝ่ายบันทึกข้อมูล",
+                        avatar: "📝",
+                        story: "ตลอด 1 เดือนที่ผ่านมา นนท์แยกตัวไปนั่งคนเดียว เงียบขรึม ไม่ยอมแตะบาสเกตบอลที่เคยเล่นทุกวัน ส่งงานช้า ดวงตาเลื่อนลอย และเขียนในสมุดว่า 'อยากหลับไปตลอดกาล'",
+                        isDepressed: true
+                    },
+                    {
+                        id: "S3",
+                        name: "ก้อง (ม.6)",
+                        role: "ฝ่ายอุปกรณ์",
+                        avatar: "🔧",
+                        story: "ทะเลาะกับพ่อแม่เรื่องไม่อยากเรียนต่อสายวิทย์ จึงแสดงพฤติกรรมประชดด้วยการใส่หูฟังตลอดเวลาและไม่ยอมคุยกับใครในบ้าน แต่ยังคุยเล่นกับเพื่อนในดิสคอร์ดได้ดี",
+                        isDepressed: false
+                    }
+                ],
+                clues: [
+                    {
+                        id: "c1",
+                        title: "แยกตัวและไม่เล่นบาสเกตบอลนานนับเดือน",
+                        detail: "นนท์เคยเป็นตัวแทนนักกีฬาบาสเกตบอล แต่เดือนที่ผ่านมาปฏิเสธการลงสนามโดยสิ้นเชิงและนั่งซึมคนเดียว",
+                        isRealEvidence: true,
+                        explanation: "การละทิ้งสิ่งที่เคยหลงใหลร่วมกับการปลีกตัวจากสังคม (Social Withdrawal) นานกว่า 2 สัปดาห์เป็นสัญญาณเตือนหลัก"
+                    },
+                    {
+                        id: "c2",
+                        title: "ร้องไห้หนักหลังผลการทดลองเคมีล้มเหลว",
+                        detail: "พิมพ์ร้องไห้ฟูมฟายทันทีที่สารเคมีปนเปื้อนจนต้องทิ้งทั้งหมด แต่เช้าวันรุ่งขึ้นมีพลังฮึดสู้ใหม่",
+                        isRealEvidence: false,
+                        explanation: "เป็นการระบายความผิดหวังเฉพาะหน้าที่มีความยืดหยุ่นทางอารมณ์ (Resilience) ตามปกติ"
+                    },
+                    {
+                        id: "c3",
+                        title: "ข้อความ 'อยากหลับไปตลอดกาล' ในสมุด",
+                        detail: "พบลายมือนนท์เขียนระบายความเหนื่อยล้าเรื้อรังและความรู้สึกอยากให้ตนเองหายไปจากโลก",
+                        isRealEvidence: true,
+                        explanation: "สัญญาณเตือนเรื่องความคิดอยากพ้นจากความทรมาน (Passive Suicidal Ideation) ต้องเฝ้าระวังอย่างเร่งด่วน"
+                    },
+                    {
+                        id: "c4",
+                        title: "ใส่หูฟังประชดครอบครัวแต่ยังคุยในเกมสนุกสนาน",
+                        detail: "ก้องงอนครอบครัวเรื่องทิศทางการเรียน แต่ยังเล่นเกมหัวเราะกับเพื่อนออนไลน์ได้ทั้งคืน",
+                        isRealEvidence: false,
+                        explanation: "เป็นความขัดแย้งเชิงสัมพันธภาพและพัฒนาการวัยรุ่น ยังคงรักษาความสนุกในชีวิตได้"
+                    },
+                    {
+                        id: "c5",
+                        title: "สมาธิสั้นลงจนทำงานง่ายๆ ไม่เสร็จและเหนื่อยล้าตลอดเวลา",
+                        detail: "นนท์ไม่สามารถจดจ่อกับการคำนวณง่ายๆ ได้ มักบ่นว่าร่างกายหนักอึ้งเหมือนแบกหินไว้",
+                        isRealEvidence: true,
+                        explanation: "ภาวะอ่อนเพลียไร้เรี่ยวแรง (Fatigue) และสมาธิบกพร่อง (Poor Concentration) พบได้บ่อยมากในผู้มีภาวะซึมเศร้า"
+                    },
+                    {
+                        id: "c6",
+                        title: "การบ่นว่าเหนื่อยมากในวันที่มีเรียนทั้งวัน",
+                        detail: "พิมพ์บ่นเหนื่อยหลังต้องยืนทำการทดลอง 6 ชั่วโมงติดกันในวันศุกร์",
+                        isRealEvidence: false,
+                        explanation: "ความเหนื่อยล้าทางกายภาพจากการทำงานหนัก เป็นภาวะปกติของร่างกาย"
+                    }
+                ],
+                interventions: [
+                    {
+                        id: "int_wrong_1",
+                        text: "บอกว่า 'ผู้ชายแมนๆ อย่าคิดมาก เรื่องแค่นี้จิ๊บจ๊อย ไปเตะบอลเดี๋ยวก็หาย'",
+                        isBest: false,
+                        feedback: "ค่านิยมกดทับเรื่องเพศและบอกให้ไปออกกำลังกายเพื่อหนีปัญหา ไม่ใช่วิธีรักษาภาวะสารเคมีในสมองไม่สมดุล"
+                    },
+                    {
+                        id: "int_best",
+                        text: "นั่งคุยในที่เงียบสงบ แสดงความเป็นห่วงอย่างจริงใจ รับฟังโดยไม่ตัดสิน และประสานครูแนะแนว/สายด่วน 1323 เพื่อวางแผนช่วยเหลือ",
+                        isBest: true,
+                        feedback: "ยอดเยี่ยมมาก! การให้พื้นที่ปลอดภัย การรับฟังด้วยความเข้าอกเข้าใจ และส่งต่อความช่วยเหลือระดับมืออาชีพคือหัวใจสำคัญ"
+                    },
+                    {
+                        id: "int_wrong_2",
+                        text: "ส่งข้อความในไลน์กลุ่มห้องประจานเพื่อขอให้เพื่อนๆ มาช่วยกันให้กำลังใจ",
+                        isBest: false,
+                        feedback: "ละเมิดความลับส่วนบุคคล ทำให้ผู้ป่วยรู้สึกอับอายและอาจกระตุ้นให้เกิดความเครียดรุนแรงขึ้น"
+                    },
+                    {
+                        id: "int_wrong_3",
+                        text: "ปล่อยไว้เฉยๆ คิดว่าเดี๋ยวเรียนจบ ม.6 สถานการณ์ก็น่าจะดีขึ้นเองตามกาลเวลา",
+                        isBest: false,
+                        feedback: "โรคซึมเศร้าหากปล่อยทิ้งไว้โดยไม่รับการประเมิน อาจมีอาการรุนแรงขึ้นจนนำไปสู่ความสูญเสียได้"
+                    }
+                ],
+                debriefEducation: `
+                    <p><strong>สรุปผลทางคลินิก:</strong> ในคดีนี้ <strong>นนท์</strong> แสดงสัญญาณเตือนของ Major Depressive Episode ชัดเจน ทั้ง Anhedonia, ความคิดไม่อยากตื่น, ความอ่อนล้าเรื้อรัง และการปลีกตัวจากสังคม</p>
+                    <p>การช่วยเหลือที่ถูกต้องไม่ใช่การสั่งให้ 'เข้มแข็ง' แต่คือการ 'อยู่เคียงข้าง' และพาไปพบผู้เชี่ยวชาญด้านสุขภาพจิตอย่างทันท่วงที</p>
+                `
+            },
+            {
+                id: "CASE-103",
+                title: "คดีไฟมอดดับในชมรมศิลปะ",
+                number: "คดีหมายเลข #A-103",
+                summary: "ก่อนการประกวดวาดภาพระดับจังหวัด ครูศิลปะพบว่านักเรียนตัวแทน 3 คนมีอาการผิดปกติ ทั้งหมดเผชิญความกดดัน แต่มีเพียง 1 คนที่กำลังดำดิ่งสู่ภาวะซึมเศร้าที่ต้องเร่งเยียวยา",
+                suspects: [
+                    {
+                        id: "S1",
+                        name: "แพรวา (ม.4)",
+                        role: "จิตรกรสีน้ำ",
+                        avatar: "🎨",
+                        story: "ตลอด 4 สัปดาห์ที่ผ่านมา ทิ้งพู่กันและสีทั้งหมด ไม่ยอมพูดจากับเพื่อน บ่นว่าร่างกายไม่มีแรงจะลุกจากเตียง น้ำหนักลดฮวบ 4 กิโลกรัม และบอกว่า 'ตนเองไม่มีค่าพอที่จะอยู่บนโลกนี้'",
+                        isDepressed: true
+                    },
+                    {
+                        id: "S2",
+                        name: "บอส (ม.5)",
+                        role: "ประติมากรปั้นดิน",
+                        avatar: "🏺",
+                        story: "โมโหขว้างดินเหนียวทิ้งเมื่อวานเพราะชิ้นงานพังไม่ทันส่งประกวด ตะโกนใส่ครูด้วยความหงุดหงิด แต่วันนี้ไปเล่นฟุตบอลกับเพื่อนสนิทและกินข้าวได้ปกติ",
+                        isDepressed: false
+                    },
+                    {
+                        id: "S3",
+                        name: "หมวย (ม.5)",
+                        role: "ฝ่ายออกแบบลายเส้น",
+                        avatar: "✏️",
+                        story: "ตื่นเต้นและวิตกกังวลจนมือสั่นทุกครั้งที่ต้องพรีเซนต์งานหน้าชั้นเรียน แต่ยังคงรักการวาดภาพและมีรอยยิ้มสดใสเมื่ออยู่กับกลุ่มเพื่อนสนิท",
+                        isDepressed: false
+                    }
+                ],
+                clues: [
+                    {
+                        id: "c1",
+                        title: "ทิ้งพู่กันและสีน้ำที่เคยรักนาน 4 สัปดาห์",
+                        detail: "แพรวาไม่ยอมแตะต้องอุปกรณ์ศิลปะเลยตลอด 1 เดือน ทั้งที่เคยเป็นความสุขเดียวในชีวิตของเธอ",
+                        isRealEvidence: true,
+                        explanation: "การหมดความสุขและไม่สนใจในสิ่งที่รัก (Anhedonia) ต่อเนื่องเกิน 2 สัปดาห์ เป็นสัญญาณหลักของโรคซึมเศร้า"
+                    },
+                    {
+                        id: "c2",
+                        title: "อาการโมโหปาชิ้นงานทิ้งหลังทำงานไม่ทัน",
+                        detail: "บอสแสดงความโกรธฉับพลันเมื่อชิ้นงานประติมากรรมพัง แต่สงบลงได้ในวันรุ่งขึ้น",
+                        isRealEvidence: false,
+                        explanation: "เป็นปฏิกิริยาความคับข้องใจชั่วคราว (Acute Frustration) จากเหตุการณ์เฉพาะหน้า ยังไม่ใช่ความผิดปกติทางอารมณ์เรื้อรัง"
+                    },
+                    {
+                        id: "c3",
+                        title: "คำพูด 'ไม่มีค่าพอที่จะอยู่บนโลกนี้' ร่วมกับน้ำหนักลดฮวบ",
+                        detail: "แพรวาปฏิเสธการทานอาหาร น้ำหนักลดลงอย่างรวดเร็ว และรู้สึกว่าตนเองไร้ค่าเป็นภาระ",
+                        isRealEvidence: true,
+                        explanation: "ความรู้สึกไร้ค่า (Worthlessness) ร่วมกับน้ำหนักลดลงอย่างมีนัยสำคัญ บ่งชี้ภาวะซึมเศร้าระดับรุนแรงที่ต้องดูแลใกล้ชิด"
+                    },
+                    {
+                        id: "c4",
+                        title: "อาการตื่นเต้นมือสั่นตอนนำเสนอผลงาน",
+                        detail: "หมวยกังวลเฉพาะเวลาต้องพูดหน้าห้อง แต่ในการใช้ชีวิตและกิจกรรมอื่นสามารถมีความสุขได้ตามปกติ",
+                        isRealEvidence: false,
+                        explanation: "เป็นความวิตกกังวลเฉพาะสถานการณ์ (Performance Anxiety) ไม่ใช่ภาวะซึมเศร้าเรื้อรัง"
+                    },
+                    {
+                        id: "c5",
+                        title: "ภาวะอ่อนเพลียเรื้อรังจนลุกไม่ไหวและตาเหม่อลอย",
+                        detail: "แพรวาแจ้งว่ารู้สึกเหมือนเรี่ยวแรงถูกสูบหายไปหมด นอนไม่หลับสะดุ้งตื่นทุกชั่วโมง",
+                        isRealEvidence: true,
+                        explanation: "การนอนผิดปกติ (Sleep Disturbance) และความล้าไร้เรี่ยวแรง (Loss of Energy) เป็นเกณฑ์สำคัญในระบบ DSM-5"
+                    },
+                    {
+                        id: "c6",
+                        title: "การไปเตะบอลระบายอารมณ์หลังทำงานพลาด",
+                        detail: "บอสไปเล่นกีฬากับเพื่อนหลังเกิดเรื่องและกลับมาหัวเราะได้",
+                        isRealEvidence: false,
+                        explanation: "เป็นกลไกการรับมือกับความเครียดที่ดีและสร้างสรรค์ (Healthy Coping Mechanism)"
+                    }
+                ],
+                interventions: [
+                    {
+                        id: "int_wrong_1",
+                        text: "ตักเตือนว่า 'อย่าทำตัวอ่อนแอ คนอื่นเขางานหนักกว่านี้ยังไม่เห็นเป็นอะไรเลย'",
+                        isBest: false,
+                        feedback: "คำพูดเปรียบเทียบและตราหน้าว่าอ่อนแอจะยิ่งตอกย้ำความรู้สึกไร้ค่าและเพิ่มความเสี่ยงต่ออันตราย"
+                    },
+                    {
+                        id: "int_best",
+                        text: "แสดงความใส่ใจอย่างอ่อนโยน 'เราเป็นห่วงนะ เธอไม่ได้อยู่คนเดียว' พร้อมพาไปพบครูแนะแนวและติดต่อครอบครัวเพื่อพบแพทย์",
+                        isBest: true,
+                        feedback: "ถูกต้องที่สุด! การส่งสารแห่งความปลอดภัยและความเข้าใจ พร้อมเชื่อมโยงระบบช่วยเหลือระดับมืออาชีพคือหัวใจสำคัญ"
+                    },
+                    {
+                        id: "int_wrong_2",
+                        text: "บอกให้รีบไปวาดรูปให้เสร็จ จะได้ไม่ต้องมีเวลาว่างมานั่งคิดฟุ้งซ่าน",
+                        isBest: false,
+                        feedback: "การบังคับให้ทำงานเมื่อสมองกำลังขาดสารสื่อประสาทสมดุล ยิ่งสร้างความล้มเหลวและความสิ้นหวังทับถม"
+                    },
+                    {
+                        id: "int_wrong_3",
+                        text: "แนะนำให้ไปซื้อยานอนหลับหรือวิตามินมากินเองโดยไม่ต้องบอกใคร",
+                        isBest: false,
+                        feedback: "การใช้ยาโดยไม่ได้รับการวินิจฉัยจากแพทย์มีความเสี่ยงสูงมากและไม่ช่วยแก้ปัญหาที่ต้นเหตุ"
+                    }
+                ],
+                debriefEducation: `
+                    <p><strong>สรุปผลทางคลินิก:</strong> ในคดีนี้ <strong>แพรวา</strong> เข้าเกณฑ์ภาวะซึมเศร้าชัดเจน ทั้งระยะเวลาที่ยาวนานเกิน 1 เดือน, หมดความสนใจในสิ่งที่รัก, น้ำหนักลด, และมีความคิดสิ้นหวัง</p>
+                    <p>ความเครียดของ <strong>บอส</strong> และ <strong>หมวย</strong> เป็นเรื่องเฉพาะหน้าที่มีทางออกและยังสามารถทำงานร่วมกับผู้อื่นได้ การแยกแยะจุดนี้ช่วยให้เราจัดสรรความช่วยเหลือได้อย่างตรงจุด</p>
+                `
+            }
+        ];
+
+        // --- 2. GAME STATE VARIABLES ---
+        let gameState = {
+            player: {
+                name: "นักสืบ",
+                avatar: "🕵️‍♂️",
+                difficulty: "normal",
+                score: 0
+            },
+            rival: {
+                name: "นักสืบมีนา (AI)",
+                avatar: "👩‍⚕️",
+                score: 0
+            },
+            currentCase: null,
+            sortedClues: {}, // clueId -> { userSelectedReal, isCorrect }
+            selectedSuspectId: null,
+            selectedInterventionId: null,
+            deductionReasonValue: "",
+            phaseUnlocked: 1,
+            timerInterval: null,
+            timeLeft: 180
+        };
+
+        const RIVAL_NAMES = [
+            { name: "นักสืบมีนา (AI สุขภาพจิต)", avatar: "👩‍⚕️" },
+            { name: "หมวดกวิน (AI สืบสวน)", avatar: "🧑‍✈️" },
+            { name: "สารวัตรลลิล (AI จิตวิทยา)", avatar: "🕵️‍♀️" },
+            { name: "รุ่นพี่ภัทร (แนะแนว AI)", avatar: "🧑‍🏫" }
+        ];
+
+        // --- 3. LIFECYCLE & EVENT HANDLERS ---
+
+        function toggleModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (el) {
+                el.classList.toggle('hidden');
+            }
+        }
+
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = message;
+            if (isSuccess) {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-amber-400 text-lg";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Handle Login and Setup
+        function handleStartGame(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('playerNameInput').value.trim();
+            const avatarChecked = document.querySelector('input[name="avatar"]:checked');
+            const difficulty = document.getElementById('gameDifficulty').value;
+
+            gameState.player.name = nameInput || "นักสืบฝึกหัด";
+            gameState.player.avatar = avatarChecked ? avatarChecked.value : "🕵️‍♂️";
+            gameState.player.difficulty = difficulty;
+            gameState.player.score = 0;
+
+            // Pick a random rival
+            const randomRival = RIVAL_NAMES[Math.floor(Math.random() * RIVAL_NAMES.length)];
+            gameState.rival.name = randomRival.name;
+            gameState.rival.avatar = randomRival.avatar;
+            gameState.rival.score = 0;
+
+            // Update Badges & UI
+            document.getElementById('badgeName').innerText = gameState.player.name;
+            document.getElementById('badgeAvatar').innerText = gameState.player.avatar;
+            document.getElementById('badgeScore').innerText = "0 แต้ม";
+            document.getElementById('userBadge').classList.remove('hidden');
+            document.getElementById('userBadge').classList.add('flex');
+
+            // Switch to Matchmaking View
+            document.getElementById('stepLogin').classList.add('hidden');
+            document.getElementById('stepMatchmaking').classList.remove('hidden');
+
+            runMatchmakingSequence();
+        }
+
+        // Matchmaking Animation Simulation
+        function runMatchmakingSequence() {
+            // Re-roll rival on each match
+            const randomRival = RIVAL_NAMES[Math.floor(Math.random() * RIVAL_NAMES.length)];
+            gameState.rival.name = randomRival.name;
+            gameState.rival.avatar = randomRival.avatar;
+            gameState.rival.score = 0;
+
+            document.getElementById('matchPlayerAvatar').innerText = gameState.player.avatar;
+            document.getElementById('matchPlayerName').innerText = gameState.player.name;
+
+            const progressBar = document.getElementById('matchProgressBar');
+            const rivalAvatar = document.getElementById('matchRivalAvatar');
+            const rivalName = document.getElementById('matchRivalName');
+            const rivalTitle = document.getElementById('matchRivalTitle');
+            const statusText = document.getElementById('matchmakingStatus');
+
+            // Reset UI for matchmaking
+            statusText.innerText = "กำลังค้นหานักสืบคู่แข่งในเครือข่าย...";
+            rivalAvatar.innerHTML = `<i class="fa-solid fa-question text-slate-500 text-2xl"></i>`;
+            rivalName.innerText = "กำลังค้นหา...";
+            rivalName.className = "text-slate-400 font-medium text-sm mt-2";
+            rivalTitle.innerText = "รอดำเนินการ";
+
+            let progress = 10;
+            progressBar.style.width = '15%';
+
+            const interval = setInterval(() => {
+                progress += 25;
+                progressBar.style.width = progress + '%';
+
+                if (progress >= 60 && progress < 85) {
+                    rivalAvatar.innerHTML = `<span class="animate-bounce inline-block">${gameState.rival.avatar}</span>`;
+                    rivalName.innerText = gameState.rival.name;
+                    rivalName.className = "text-white font-medium text-sm mt-2";
+                    rivalTitle.innerText = "ผู้ท้าชิงออนไลน์";
+                    statusText.innerText = "พบนักสืบคู่แข่งแล้ว! กำลังเชื่อมต่อแฟ้มคดี...";
+                }
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        startCaseGame();
+                    }, 800);
+                }
+            }, 500);
+        }
+
+        // Start Case
+        function startCaseGame() {
+            document.getElementById('stepMatchmaking').classList.add('hidden');
+            document.getElementById('stepGameplay').classList.remove('hidden');
+
+            // Pick random case from Case Database (avoiding same case if possible)
+            let caseIndex = Math.floor(Math.random() * CASE_DATABASE.length);
+            if (gameState.currentCase && CASE_DATABASE.length > 1) {
+                while (CASE_DATABASE[caseIndex].id === gameState.currentCase.id) {
+                    caseIndex = Math.floor(Math.random() * CASE_DATABASE.length);
+                }
+            }
+
+            gameState.currentCase = JSON.parse(JSON.stringify(CASE_DATABASE[caseIndex]));
+            gameState.sortedClues = {};
+            gameState.selectedSuspectId = null;
+            gameState.selectedInterventionId = null;
+            gameState.phaseUnlocked = 1;
+            gameState.player.score = 0;
+            gameState.rival.score = 0;
+
+            // Reset locks and buttons
+            document.getElementById('tab2Lock').classList.remove('hidden');
+            document.getElementById('tab3Lock').classList.remove('hidden');
+            const proceedBtn = document.getElementById('btnProceedToNotebook');
+            proceedBtn.disabled = true;
+            proceedBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const finalizeBtn = document.getElementById('btnFinalizeCase');
+            finalizeBtn.disabled = true;
+            finalizeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const reasonSelect = document.getElementById('deductionReason');
+            if (reasonSelect) reasonSelect.value = "";
+
+            // Render Header
+            document.getElementById('caseNumberTag').innerText = gameState.currentCase.number;
+            document.getElementById('caseTitleDisplay').innerText = gameState.currentCase.title;
+            document.getElementById('caseIncidentSummary').innerText = gameState.currentCase.summary;
+
+            document.getElementById('gameUserAvatarDisplay').innerText = gameState.player.avatar;
+            document.getElementById('gameUserNameDisplay').innerText = gameState.player.name;
+            document.getElementById('gameUserScoreDisplay').innerText = "0 แต้ม";
+
+            document.getElementById('gameRivalAvatarDisplay').innerText = gameState.rival.avatar;
+            document.getElementById('gameRivalNameDisplay').innerText = gameState.rival.name;
+            document.getElementById('gameRivalScoreDisplay').innerText = "0 แต้ม";
+
+            document.getElementById('notebookAuthor').innerText = `${gameState.player.avatar} ${gameState.player.name}`;
+
+            // Handle Challenge Timer
+            setupGameTimer();
+
+            renderPhase1Clues();
+            renderPhase2Suspects();
+            renderPhase3Interventions();
+            switchPhase(1);
+        }
+
+        // Timer for Challenge Mode
+        function setupGameTimer() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+
+            const timerTag = document.getElementById('timerTag');
+            const countdownDisplay = document.getElementById('countdownDisplay');
+
+            if (gameState.player.difficulty === 'challenge') {
+                gameState.timeLeft = 120; // 2 minutes for challenge
+                timerTag.classList.remove('hidden');
+                updateTimerDisplay();
+
+                gameState.timerInterval = setInterval(() => {
+                    gameState.timeLeft--;
+                    updateTimerDisplay();
+
+                    if (gameState.timeLeft <= 0) {
+                        clearInterval(gameState.timerInterval);
+                        showToast("หมดเวลาการสืบสวน! บังคับสรุปสำนวนคดีทันที", false);
+                        finalizeCaseResolution();
+                    }
+                }, 1000);
+            } else {
+                timerTag.classList.add('hidden');
+            }
+        }
+
+        function updateTimerDisplay() {
+            const min = Math.floor(gameState.timeLeft / 60);
+            const sec = gameState.timeLeft % 60;
+            const str = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+            const display = document.getElementById('countdownDisplay');
+            if (display) display.innerText = str;
+        }
+
+        // --- 4. RENDERERS ---
+
+        // Render Phase 1: Clue Sorting
+        function renderPhase1Clues() {
+            const container = document.getElementById('clueCardsContainer');
+            container.innerHTML = "";
+
+            gameState.currentCase.clues.forEach((clue, idx) => {
+                const card = document.createElement('div');
+                card.id = `clueCard_${clue.id}`;
+                card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between transition hover:border-slate-700 shadow-md relative overflow-hidden";
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between text-xs font-mono text-slate-500 mb-2">
+                            <span>เบาะแสชิ้นที่ #${idx + 1}</span>
+                            <span id="badgeStatus_${clue.id}" class="text-slate-400">ยังไม่แยก</span>
+                        </div>
+                        <h4 class="font-bold text-slate-100 text-sm mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-magnifying-glass-arrow-right text-amber-400 text-xs"></i>
+                            ${clue.title}
+                        </h4>
+                        <p class="text-xs text-slate-300 leading-relaxed font-prompt mb-4">
+                            ${clue.detail}
+                        </p>
+                    </div>
+
+                    <div id="explanationBox_${clue.id}" class="hidden mb-3 p-2.5 rounded-xl text-xs font-prompt"></div>
+
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80" id="btnGroup_${clue.id}">
+                        <button onclick="handleSortClue('${clue.id}', true)" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs py-2 px-2 rounded-xl font-medium transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-check"></i> อาการสำคัญจริง
+                        </button>
+                        <button onclick="handleSortClue('${clue.id}', false)" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs py-2 px-2 rounded-xl font-medium transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-xmark"></i> เบาะแสลวง/ปกติ
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            updateClueProgressCounters();
+        }
+
+        // Handle Clue Sorting Decision
+        function handleSortClue(clueId, userSelectedReal) {
+            const clue = gameState.currentCase.clues.find(c => c.id === clueId);
+            if (!clue || gameState.sortedClues[clueId]) return;
+
+            const isCorrect = (clue.isRealEvidence === userSelectedReal);
+            gameState.sortedClues[clueId] = {
+                userSelectedReal: userSelectedReal,
+                isCorrect: isCorrect
+            };
+
+            const card = document.getElementById(`clueCard_${clueId}`);
+            const badge = document.getElementById(`badgeStatus_${clueId}`);
+            const btnGroup = document.getElementById(`btnGroup_${clueId}`);
+            const expBox = document.getElementById(`explanationBox_${clueId}`);
+
+            // Score Calculations
+            if (isCorrect) {
+                gameState.player.score += 15;
+                showToast("วิเคราะห์เบาะแสถูกต้อง! (+15 คะแนน)", true);
+                badge.innerText = "ถูกต้อง ✓";
+                badge.className = "text-emerald-400 font-bold";
+                card.classList.add('border-emerald-500/40');
+            } else {
+                gameState.player.score = Math.max(0, gameState.player.score - 5);
+                showToast("วิเคราะห์คลาดเคลื่อนจากเกณฑ์ (-5 คะแนน)", false);
+                badge.innerText = "คลาดเคลื่อน ✗";
+                badge.className = "text-rose-400 font-bold";
+                card.classList.add('border-rose-500/40');
+            }
+
+            // Simulate Rival AI Score Gain
+            const rivalGain = Math.random() > 0.3 ? 15 : 5;
+            gameState.rival.score += rivalGain;
+
+            updateScoreDisplays();
+
+            // Disable buttons and show explanation
+            btnGroup.innerHTML = `
+                <div class="col-span-2 text-center text-xs py-1 text-slate-400">
+                    คำตอบของคุณ: <strong class="${userSelectedReal ? 'text-emerald-400' : 'text-rose-400'}">${userSelectedReal ? 'อาการสำคัญจริง' : 'เบาะแสลวง'}</strong>
+                </div>
+            `;
+
+            expBox.classList.remove('hidden');
+            expBox.className = `mb-3 p-2.5 rounded-xl text-xs font-prompt ${isCorrect ? 'bg-emerald-950/30 text-emerald-200 border border-emerald-800/40' : 'bg-amber-950/30 text-amber-200 border border-amber-800/40'}`;
+            expBox.innerHTML = `<strong>คำอธิบาย:</strong> ${clue.explanation}`;
+
+            updateClueProgressCounters();
+
+            // Check if all clues are sorted
+            const totalClues = gameState.currentCase.clues.length;
+            const sortedCount = Object.keys(gameState.sortedClues).length;
+            if (sortedCount === totalClues) {
+                gameState.phaseUnlocked = Math.max(gameState.phaseUnlocked, 2);
+                document.getElementById('tab2Lock').classList.add('hidden');
+                const proceedBtn = document.getElementById('btnProceedToNotebook');
+                proceedBtn.disabled = false;
+                proceedBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                showToast("คัดแยกเบาะแสครบถ้วนแล้ว! สามารถไปต่อที่สมุดสรุปสำนวน", true);
+            }
+        }
+
+        function updateClueProgressCounters() {
+            const total = gameState.currentCase.clues.length;
+            const current = Object.keys(gameState.sortedClues).length;
+            document.getElementById('clueCounter').innerText = `${current}/${total}`;
+            document.getElementById('cardsRemaining').innerText = `แยกแล้ว ${current} จาก ${total} การ์ด`;
+        }
+
+        // Render Phase 2: Notebook & Suspects
+        function renderPhase2Suspects() {
+            const list = document.getElementById('suspectsList');
+            list.innerHTML = "";
+
+            gameState.currentCase.suspects.forEach((suspect) => {
+                const item = document.createElement('div');
+                item.className = `p-4 rounded-2xl border-2 transition cursor-pointer bg-white/90 hover:bg-white shadow-paper border-slate-200`;
+                item.id = `suspectCard_${suspect.id}`;
+                item.onclick = () => selectSuspect(suspect.id);
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-3xl">${suspect.avatar}</span>
+                        <div>
+                            <h5 class="font-bold text-slate-900 text-sm">${suspect.name}</h5>
+                            <span class="text-xs text-slate-500">${suspect.role}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed font-prompt mt-2">
+                        ${suspect.story}
+                    </p>
+                    <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="text-slate-400">สถานะการชี้ตัว:</span>
+                        <span id="suspectStatus_${suspect.id}" class="font-bold text-slate-400">ยังไม่เลือก</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function selectSuspect(suspectId) {
+            gameState.selectedSuspectId = suspectId;
+            gameState.currentCase.suspects.forEach(s => {
+                const card = document.getElementById(`suspectCard_${s.id}`);
+                const status = document.getElementById(`suspectStatus_${s.id}`);
+                if (s.id === suspectId) {
+                    card.classList.remove('border-slate-200');
+                    card.classList.add('border-amber-600', 'bg-amber-50/90', 'ring-2', 'ring-amber-500/20');
+                    status.innerText = "ระบุบุคคลนี้ 🎯";
+                    status.className = "font-bold text-amber-700";
+                } else {
+                    card.classList.remove('border-amber-600', 'bg-amber-50/90', 'ring-2', 'ring-amber-500/20');
+                    card.classList.add('border-slate-200');
+                    status.innerText = "ยังไม่เลือก";
+                    status.className = "font-bold text-slate-400";
+                }
+            });
+        }
+
+        function submitNotebookDeduction() {
+            if (!gameState.selectedSuspectId) {
+                showToast("กรุณาเลือกชี้ตัวนักเรียน 1 คนที่กำลังเผชิญภาวะซึมเศร้า", false);
+                return;
+            }
+
+            const reasonSelect = document.getElementById('deductionReason');
+            if (!reasonSelect.value) {
+                showToast("กรุณาเลือกหลักเกณฑ์เชิงจิตวิทยาประกอบสำนวน", false);
+                return;
+            }
+
+            gameState.deductionReasonValue = reasonSelect.value;
+            const chosen = gameState.currentCase.suspects.find(s => s.id === gameState.selectedSuspectId);
+
+            // Validation
+            const isCorrectPerson = chosen && chosen.isDepressed;
+            const isCorrectReason = (gameState.deductionReasonValue === 'duration');
+
+            if (isCorrectPerson && isCorrectReason) {
+                gameState.player.score += 40;
+                showToast("ข้อสรุปถูกต้องแม่นยำตามเกณฑ์ DSM-5! (+40 คะแนน)", true);
+            } else if (isCorrectPerson) {
+                gameState.player.score += 20;
+                showToast("ชี้ตัวถูกต้อง แต่เหตุผลยังไม่สอดคล้องที่สุด (+20 คะแนน)", true);
+            } else {
+                showToast("บุคคลที่เลือกยังไม่ใช่ผู้ที่มีภาวะซึมเศร้าหลักในคดีนี้", false);
+            }
+
+            // Rival AI Score update
+            gameState.rival.score += (Math.random() > 0.25 ? 35 : 20);
+            updateScoreDisplays();
+
+            // Unlock Phase 3
+            gameState.phaseUnlocked = Math.max(gameState.phaseUnlocked, 3);
+            document.getElementById('tab3Lock').classList.add('hidden');
+            switchPhase(3);
+        }
+
+        // Render Phase 3: Interventions
+        function renderPhase3Interventions() {
+            const container = document.getElementById('interventionCardsContainer');
+            container.innerHTML = "";
+
+            gameState.currentCase.interventions.forEach((item) => {
+                const card = document.createElement('div');
+                card.id = `interventionCard_${item.id}`;
+                card.className = "bg-slate-800/90 border border-slate-700 hover:border-slate-500 rounded-2xl p-4 cursor-pointer transition flex flex-col justify-between";
+                card.onclick = () => selectIntervention(item.id);
+
+                card.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <span class="p-2 bg-slate-700/80 rounded-xl text-teal-400 text-sm mt-0.5">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </span>
+                        <div>
+                            <p class="text-sm text-slate-100 font-medium leading-relaxed font-prompt">${item.text}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-2 border-t border-slate-700/60 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">สถานะ:</span>
+                        <span id="intStatus_${item.id}" class="text-slate-400 font-medium">กดเพื่อเลือก</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectIntervention(id) {
+            gameState.selectedInterventionId = id;
+            gameState.currentCase.interventions.forEach(item => {
+                const el = document.getElementById(`interventionCard_${item.id}`);
+                const status = document.getElementById(`intStatus_${item.id}`);
+                if (item.id === id) {
+                    el.classList.remove('border-slate-700');
+                    el.classList.add('border-teal-400', 'bg-teal-950/20', 'ring-2', 'ring-teal-400/30');
+                    status.innerText = "เลือกแนวทางนี้ ✨";
+                    status.className = "text-teal-400 font-bold";
+                } else {
+                    el.classList.remove('border-teal-400', 'bg-teal-950/20', 'ring-2', 'ring-teal-400/30');
+                    el.classList.add('border-slate-700');
+                    status.innerText = "กดเพื่อเลือก";
+                    status.className = "text-slate-400 font-medium";
+                }
+            });
+
+            const finalizeBtn = document.getElementById('btnFinalizeCase');
+            finalizeBtn.disabled = false;
+            finalizeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function finalizeCaseResolution() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+
+            if (!gameState.selectedInterventionId) {
+                showToast("กรุณาเลือกแนวทางการช่วยเหลือ 1 ข้อ", false);
+                return;
+            }
+
+            const chosen = gameState.currentCase.interventions.find(i => i.id === gameState.selectedInterventionId);
+            if (chosen && chosen.isBest) {
+                gameState.player.score += 35;
+                showToast("เลือกการช่วยเหลือได้ถูกต้องและปลอดภัยที่สุด! (+35 คะแนน)", true);
+            } else {
+                gameState.player.score += 5;
+                showToast("แนวทางนี้อาจยังไม่ปลอดภัยต่อความรู้สึกของผู้ป่วย", false);
+            }
+
+            // Rival AI final points
+            gameState.rival.score += (Math.random() > 0.3 ? 30 : 15);
+            updateScoreDisplays();
+
+            // Trigger Fireworks / Confetti
+            try {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } catch (err) {}
+
+            showFinalDebrief();
+        }
+
+        // --- 5. RESULTS & DEBRIEF ---
+        function showFinalDebrief() {
+            document.getElementById('stepGameplay').classList.add('hidden');
+            document.getElementById('stepResults').classList.remove('hidden');
+
+            document.getElementById('finalUserName').innerText = gameState.player.name;
+            document.getElementById('finalUserAvatar').innerText = gameState.player.avatar;
+            document.getElementById('finalUserScore').innerText = gameState.player.score;
+
+            document.getElementById('finalRivalName').innerText = gameState.rival.name;
+            document.getElementById('finalRivalAvatar').innerText = gameState.rival.avatar;
+            document.getElementById('finalRivalScore').innerText = gameState.rival.score;
+
+            const badge = document.getElementById('battleResultBadge');
+            if (gameState.player.score >= gameState.rival.score) {
+                badge.innerText = "คุณชนะ!";
+                badge.className = "text-xs uppercase font-mono px-2 py-1 rounded bg-emerald-500 text-slate-950 font-bold";
+                document.getElementById('resultHeaderTitle').innerText = "ปิดแฟ้มคดีสำเร็จ! ยอดเยี่ยมมาก";
+            } else {
+                badge.innerText = "คู่แข่งทำคะแนนได้ดีกว่า";
+                badge.className = "text-xs uppercase font-mono px-2 py-1 rounded bg-amber-500 text-slate-950 font-bold";
+                document.getElementById('resultHeaderTitle').innerText = "ปิดแฟ้มคดีสำเร็จ!";
+            }
+
+            // Inject Educational Feedback
+            document.getElementById('educationalFeedback').innerHTML = gameState.currentCase.debriefEducation;
+        }
+
+        function restartWithNewCase() {
+            document.getElementById('stepResults').classList.add('hidden');
+            document.getElementById('stepMatchmaking').classList.remove('hidden');
+            runMatchmakingSequence();
+        }
+
+        function shareCaseResult() {
+            const summaryText = `🔍 ฉันได้ทำหน้าที่นักสืบใน "แฟ้มคดีสุขภาพใจ" ในคดี ${gameState.currentCase ? gameState.currentCase.title : ''}\nทำคะแนนการสืบสวนไปได้ ${gameState.player.score} คะแนน! ร่วมสร้างความเข้าใจและตระหนักรู้เกี่ยวกับภาวะซึมเศร้าในโรงเรียนไปด้วยกัน`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(summaryText)
+                    .then(() => showToast("คัดลอกข้อความสรุปผลคดีลงคลิปบอร์ดแล้ว!", true))
+                    .catch(() => fallbackCopy(summaryText));
+            } else {
+                fallbackCopy(summaryText);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const dummy = document.createElement("textarea");
+            dummy.value = text;
+            dummy.style.position = "fixed";
+            dummy.style.left = "-9999px";
+            document.body.appendChild(dummy);
+            dummy.focus();
+            dummy.select();
+            try {
+                document.execCommand("copy");
+                showToast("คัดลอกข้อความสรุปผลคดีลงคลิปบอร์ดแล้ว!", true);
+            } catch (err) {
+                showToast("ไม่สามารถคัดลอกได้โดยอัตโนมัติ", false);
+            }
+            document.body.removeChild(dummy);
+        }
+
+        // --- 6. PHASE SWITCHER ---
+        function switchPhase(phaseNum) {
+            if (phaseNum > gameState.phaseUnlocked) {
+                showToast("คุณต้องผ่านขั้นตอนก่อนหน้านี้ให้ครบถ้วนก่อน", false);
+                return;
+            }
+
+            // Buttons styling
+            const btn1 = document.getElementById('tabBtn1');
+            const btn2 = document.getElementById('tabBtn2');
+            const btn3 = document.getElementById('tabBtn3');
+
+            [btn1, btn2, btn3].forEach(b => {
+                b.className = "px-4 py-2 rounded-t-xl font-medium transition flex items-center gap-2 text-slate-400 hover:text-white bg-slate-800/40";
+            });
+
+            document.getElementById('phase1').classList.add('hidden');
+            document.getElementById('phase2').classList.add('hidden');
+            document.getElementById('phase3').classList.add('hidden');
+
+            if (phaseNum === 1) {
+                btn1.className = "px-4 py-2 rounded-t-xl font-bold transition flex items-center gap-2 bg-amber-500 text-slate-950";
+                document.getElementById('phase1').classList.remove('hidden');
+            } else if (phaseNum === 2) {
+                btn2.className = "px-4 py-2 rounded-t-xl font-bold transition flex items-center gap-2 bg-amber-500 text-slate-950";
+                document.getElementById('phase2').classList.remove('hidden');
+            } else if (phaseNum === 3) {
+                btn3.className = "px-4 py-2 rounded-t-xl font-bold transition flex items-center gap-2 bg-teal-500 text-slate-950";
+                document.getElementById('phase3').classList.remove('hidden');
+            }
+        }
+
+        function updateScoreDisplays() {
+            document.getElementById('badgeScore').innerText = `${gameState.player.score} แต้ม`;
+            document.getElementById('gameUserScoreDisplay').innerText = `${gameState.player.score} แต้ม`;
+            document.getElementById('gameRivalScoreDisplay').innerText = `${gameState.rival.score} แต้ม`;
+        }
+    </script>
+</body>
+</html>
